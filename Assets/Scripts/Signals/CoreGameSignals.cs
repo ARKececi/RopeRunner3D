@@ -9,6 +9,7 @@ namespace Signals
     {
         public UnityAction onPlay = delegate { };
         public UnityAction onReset = delegate { };
+        public UnityAction onFail = delegate { };
         public UnityAction<GameStates> onGetGameState = delegate { };
     }
 }

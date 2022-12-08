@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using Command.Player;
 using Data.UnityObject;
 using Data.ValueObject;
+using DG.Tweening;
 using Enums;
 using Keys;
 using Managers;
+using Signals;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -20,8 +22,7 @@ namespace Controllers
         
         #endregion
         #region Serialized Variables
-
-        [SerializeField] private PlayerManager playerManager;
+        
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private List<GameObject> charachterList;
 
@@ -31,11 +32,14 @@ namespace Controllers
         [ShowInInspector] [Header("Data")] private PlayerMovementData _playerMovementData;
         private bool _isReadyToMove, _isReadyToPlay;
         private Vector3 _inputValue;
-        private Vector2 _clampValues;
+        private Vector3 _spawnPosition;
         private InputParams _inputParams;
+        private GameObject _player;
         private float _colorAreaSpeed;
         private Movement _movement;
         private ClampMovement _clampMovement;
+        private PlayerReset _playerReset;
+        private CharacterToCharacter _characterToCharacter;
 
         #endregion
         #endregion
@@ -43,8 +47,15 @@ namespace Controllers
         {
             _colorAreaSpeed = 1f;
             _playerMovementData = GetPlayerData().MovementData;
+            _player = transform.gameObject;
             _movement = new Movement(ref rigidbody, ref _playerMovementData, ref _colorAreaSpeed);
             _clampMovement = new ClampMovement(ref rigidbody);
+            _playerReset = new PlayerReset(ref charachterList, ref _player, ref _isReadyToMove, ref _isReadyToPlay );
+            _characterToCharacter = new CharacterToCharacter(ref charachterList);
+        }
+        private void Start()
+        {
+            _spawnPosition = transform.position;
         }
         private PlayerData GetPlayerData()
         {
@@ -55,14 +66,32 @@ namespace Controllers
             if (_isReadyToMove)
             {
                 _inputParams = inputParams;
-                _clampValues = inputParams.ClampValues;    
             }
+        }
+        public void SyncPlayerToCharacter()
+        {
+            _characterToCharacter.Execute();
+        }
+        public void Gameover()
+        {
+            if (Mathf.Round(charachterList[0].transform.localPosition.z) > Mathf.Round(charachterList[1].transform.localPosition.z) + 6 || 
+                Mathf.Round(charachterList[1].transform.localPosition.z) > Mathf.Round(charachterList[0].transform.localPosition.z) + 6)
+            {
+                Fail();
+            }
+        }
+        public void Fail()
+        {
+            _isReadyToPlay = false;
+            _isReadyToMove = false;
+            foreach (var t in charachterList) {t.GetComponent<CharacterController>().CharacterAnimation("StandBy");}
+            PlayerSignals.Instance.onReset?.Invoke();
         }
         private void FixedUpdate()
         {
             if (_isReadyToPlay)
             {
-                _movement.Move(_inputParams);
+                _movement.Execute(_inputParams);
             }
             else
             {
@@ -71,7 +100,7 @@ namespace Controllers
         }
         private void Update()
         {
-            _clampMovement.ClampMove(_inputParams);
+            _clampMovement.Execute(_inputParams);
         }
 
         #region SubscribedMethods
@@ -97,8 +126,7 @@ namespace Controllers
         public void Reset()
         {
             Stop();
-            _isReadyToPlay = false;
-            _isReadyToMove = false;
+            _playerReset.Execute(_spawnPosition);
         }
 
         #endregion

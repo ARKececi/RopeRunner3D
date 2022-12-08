@@ -19,7 +19,7 @@ namespace Command.Player
             _rigidbody = rigidbody;
         } 
         
-        public void ClampMove(InputParams inputParams)
+        public void Execute (InputParams inputParams)
         {
             Vector3 position;
             position = new Vector3(

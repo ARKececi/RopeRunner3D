@@ -1,3 +1,4 @@
+using System;
 using Controllers;
 using Enums;
 using Signals;
@@ -26,12 +27,12 @@ namespace Managers
 
         private void SubscribeEvents()
         {
-            
+            PlayerSignals.Instance.onReset += OnReset;
         }
 
         private void UnsubscribeEvents()
         {
-            
+            PlayerSignals.Instance.onReset -= OnReset;
         }
 
         private void OnDisable()
@@ -45,11 +46,23 @@ namespace Managers
         {
             uıPanelController.OnOpenPanel(UIPanel.Play);
         }
+
+        private void OnReset()
+        {
+            uıPanelController.OnOpenPanel(UIPanel.Reset);
+        }
         
         public void Play()
         {
             uıPanelController.OnClosePanel(UIPanel.Play);
             CoreGameSignals.Instance.onPlay?.Invoke();
+        }
+
+        public void Reset()
+        {
+            CoreGameSignals.Instance.onReset?.Invoke();
+            uıPanelController.OnClosePanel(UIPanel.Reset);
+            OnPlay();
         }
     }
 }

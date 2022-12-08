@@ -9,7 +9,7 @@ namespace Controllers
 
         #region Serialized Variables
 
-        [SerializeField] private PlayerMovementController playerMovementController;
+        [SerializeField] private CharacterController characterController;
 
         #endregion
 
@@ -19,7 +19,14 @@ namespace Controllers
         {
             if (other.CompareTag("Obstacle"))
             {
-                
+                characterController.Moving("Obstacle");
+                other.transform.gameObject.SetActive(false);
+            }
+
+            if (other.CompareTag("Money"))
+            {
+                characterController.Moving("Money");
+                other.transform.gameObject.SetActive(false);
             }
         }
     }
