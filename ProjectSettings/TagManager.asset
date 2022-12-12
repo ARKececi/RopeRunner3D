@@ -7,6 +7,7 @@ TagManager:
   - Charachter
   - Obstacle
   - Money
+  - Jump
   layers:
   - Default
   - TransparentFX

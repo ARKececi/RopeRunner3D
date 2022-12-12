@@ -24,12 +24,13 @@ namespace Controllers
         #region Serialized Variables
         
         [SerializeField] private Rigidbody rigidbody;
-        [SerializeField] private List<GameObject> charachterList;
+        [SerializeField] private List<GameObject> characterList;
 
         #endregion
         #region Private Variables
 
         [ShowInInspector] [Header("Data")] private PlayerMovementData _playerMovementData;
+        [Header("CharacterData")] private CharacterData _characterData;
         private bool _isReadyToMove, _isReadyToPlay;
         private Vector3 _inputValue;
         private Vector3 _spawnPosition;
@@ -40,6 +41,9 @@ namespace Controllers
         private ClampMovement _clampMovement;
         private PlayerReset _playerReset;
         private CharacterToCharacter _characterToCharacter;
+        private CharacterMove _characterMove;
+        private int _right, _left;
+        private bool _rightCharacterTrigger, _leftCharacterTrigger;
 
         #endregion
         #endregion
@@ -47,20 +51,25 @@ namespace Controllers
         {
             _colorAreaSpeed = 1f;
             _playerMovementData = GetPlayerData().MovementData;
+            _characterData = GetCharacterData();
             _player = transform.gameObject;
+
+            #region Command Variables
+
             _movement = new Movement(ref rigidbody, ref _playerMovementData, ref _colorAreaSpeed);
             _clampMovement = new ClampMovement(ref rigidbody);
-            _playerReset = new PlayerReset(ref charachterList, ref _player, ref _isReadyToMove, ref _isReadyToPlay );
-            _characterToCharacter = new CharacterToCharacter(ref charachterList);
+            _playerReset = new PlayerReset(ref characterList, ref _player, ref _isReadyToMove, ref _isReadyToPlay );
+            _characterToCharacter = new CharacterToCharacter(ref characterList);
+            _characterMove = new CharacterMove(ref characterList, ref _player, ref _characterData);
+
+            #endregion
         }
         private void Start()
         {
             _spawnPosition = transform.position;
         }
-        private PlayerData GetPlayerData()
-        {
-            return Resources.Load<CD_Player>("Data/CD_Player").Data;
-        }
+        private PlayerData GetPlayerData() { return Resources.Load<CD_Player>("Data/CD_Player").Data; }
+        private CharacterData GetCharacterData() { return Resources.Load<CD_Character>("Data/CD_Character").CharacterData; }
         public void inputController(InputParams inputParams)
         {
             if (_isReadyToMove)
@@ -68,14 +77,14 @@ namespace Controllers
                 _inputParams = inputParams;
             }
         }
-        public void SyncPlayerToCharacter()
+        public void JumpStation()
         {
-            _characterToCharacter.Execute();
+            
         }
         public void Gameover()
         {
-            if (Mathf.Round(charachterList[0].transform.localPosition.z) > Mathf.Round(charachterList[1].transform.localPosition.z) + 6 || 
-                Mathf.Round(charachterList[1].transform.localPosition.z) > Mathf.Round(charachterList[0].transform.localPosition.z) + 6)
+            if (Mathf.Round(characterList[0].transform.GetChild(0).localPosition.z) > Mathf.Round(characterList[1].transform.GetChild(0).localPosition.z) + 5 || 
+                Mathf.Round(characterList[1].transform.GetChild(0).localPosition.z) > Mathf.Round(characterList[0].transform.GetChild(0).localPosition.z) + 5)
             {
                 Fail();
             }
@@ -84,8 +93,12 @@ namespace Controllers
         {
             _isReadyToPlay = false;
             _isReadyToMove = false;
-            foreach (var t in charachterList) {t.GetComponent<CharacterController>().CharacterAnimation("StandBy");}
+            PlayerSignals.Instance.onCharachterAnimation?.Invoke("StandBy");
             PlayerSignals.Instance.onReset?.Invoke();
+        }
+        private void CharachterMove()
+        {
+            _characterMove.Execute(_inputParams, _rightCharacterTrigger, _leftCharacterTrigger);
         }
         private void FixedUpdate()
         {
@@ -101,6 +114,7 @@ namespace Controllers
         private void Update()
         {
             _clampMovement.Execute(_inputParams);
+            CharachterMove();
         }
 
         #region SubscribedMethods
@@ -120,7 +134,7 @@ namespace Controllers
         }
         public void Play()
         {
-            foreach (var t in charachterList) {t.GetComponent<CharacterController>().CharacterAnimation("Runner");}
+            PlayerSignals.Instance.onCharachterAnimation?.Invoke("Runner");
             _isReadyToPlay = true;
         }
         public void Reset()
