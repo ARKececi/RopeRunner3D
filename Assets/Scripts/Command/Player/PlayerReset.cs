@@ -29,10 +29,10 @@ namespace Command.Player
             _isReadyToPlay = false;
             _isReadyToMove = false;
             _player.transform.position = spawnPosition;
-            _charachterList[0].transform.localPosition = new Vector3(_charachterList[0].transform.localPosition.x,
-                _charachterList[0].transform.localPosition.y, 0);
-            _charachterList[1].transform.localPosition = new Vector3(_charachterList[1].transform.localPosition.x,
-                _charachterList[1].transform.localPosition.y, 0);
+            _charachterList[0].transform.position = new Vector3(spawnPosition.x + 7,
+                _charachterList[0].transform.position.y, 0);
+            _charachterList[1].transform.position = new Vector3(spawnPosition.x - 7,
+                _charachterList[1].transform.position.y, 0);
         }
     }
 }

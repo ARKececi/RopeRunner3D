@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Signals;
 using UnityEngine;
 
 namespace Controllers
@@ -21,7 +22,7 @@ namespace Controllers
             {
                 characterController.Trigger("Obstacle");
                 characterController.CharacterAnimation("ObstacleWalking");
-                DOVirtual.DelayedCall(2.5f,()=>characterController.CharacterAnimation("Runner"));
+                DOVirtual.DelayedCall(.2f,()=>characterController.CharacterAnimation("Runner"));
                 other.transform.gameObject.SetActive(false);
             }
             if (other.CompareTag("Money"))
@@ -31,7 +32,8 @@ namespace Controllers
             }
             if (other.CompareTag("Jump"))
             {
-                characterController.CharacterAnimation("Jump");
+                characterController.CharacterAnimation("StandBy");
+                CharacterSignals.Instance.onJumpStation?.Invoke(transform.parent.parent.gameObject);
             }
         }
     }

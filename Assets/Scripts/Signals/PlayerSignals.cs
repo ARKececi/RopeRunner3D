@@ -11,5 +11,6 @@ namespace Signals
         public UnityAction<string> onCharachterAnimation = delegate { };
         public UnityAction<CameraState> onPlayCamera = delegate { };
         public UnityAction<GameObject> onSetCamera = delegate { };
+        public UnityAction onChildZeroPosition = delegate { };
     }
 }

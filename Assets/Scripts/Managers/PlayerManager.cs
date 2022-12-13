@@ -32,6 +32,7 @@ namespace Managers
             InputSignals.Instance.onInputTaken += playerMovementController.EnableMovement;
             CoreGameSignals.Instance.onPlay += playerMovementController.Play;
             CoreGameSignals.Instance.onReset += playerMovementController.Reset;
+            CharacterSignals.Instance.onJumpStation += OnJumpStation;
         }
 
         private void UnsubscribeEvents()
@@ -41,6 +42,7 @@ namespace Managers
             InputSignals.Instance.onInputTaken -= playerMovementController.EnableMovement;
             CoreGameSignals.Instance.onPlay -= playerMovementController.Play;
             CoreGameSignals.Instance.onReset -= playerMovementController.Reset;
+            CharacterSignals.Instance.onJumpStation -= OnJumpStation;
         }
 
         private void OnDisable()
@@ -53,6 +55,11 @@ namespace Managers
         private void OnInputDragged(InputParams ınputParams)
         {
             playerMovementController.inputController(ınputParams);
+        }
+
+        private void OnJumpStation(GameObject other)
+        {
+            playerMovementController.CharacterJumpStation(other);
         }
         
     }

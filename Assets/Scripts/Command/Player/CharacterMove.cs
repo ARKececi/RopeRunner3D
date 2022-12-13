@@ -38,11 +38,11 @@ namespace Command.Player
             var position = _player.transform.position;
             if (!rightCharacterTrigger)
             {
-                _characterList[0].transform.position = new Vector3(rightCharacterX, _characterList[0].transform.position.y, position.z);   
+                _characterList[0].transform.position = new Vector3(rightCharacterX, position.y, position.z);   
             }
             if (!leftCharacterTrigger)
             {
-                _characterList[1].transform.position = new Vector3(leftCharacterX, _characterList[1].transform.position.y, position.z);   
+                _characterList[1].transform.position = new Vector3(leftCharacterX, position.y, position.z);   
             }
         }
     }

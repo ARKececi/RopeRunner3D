@@ -25,14 +25,16 @@ namespace Managers
 
         private void SubscribeEvents()
         {
+            PlayerSignals.Instance.onChildZeroPosition += characterController.ChildZeroPosition;
             PlayerSignals.Instance.onCharachterAnimation += characterController.CharacterAnimation;
             CoreGameSignals.Instance.onReset += characterController.Reset;
         }
 
         private void UnsubscribeEvents()
         {
+            PlayerSignals.Instance.onChildZeroPosition -= characterController.ChildZeroPosition;
             PlayerSignals.Instance.onCharachterAnimation -= characterController.CharacterAnimation;
-            CoreGameSignals.Instance.onReset += characterController.Reset;
+            CoreGameSignals.Instance.onReset -= characterController.Reset;
         }
 
         private void OnDisable()

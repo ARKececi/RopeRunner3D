@@ -49,6 +49,10 @@ namespace Controllers
                 transform.DOLocalMoveY(-.67f, 1);
             }
         }
+        public void ChildZeroPosition()
+        {
+            transform.localPosition = Vector3.zero;
+        }
         public void Trigger(string variable)
         {
             if (variable == "Obstacle")
@@ -94,6 +98,7 @@ namespace Controllers
         public void Reset()
         {
             transform.localPosition = Vector3.zero;
+            _index = 0;
         }
     }
 }

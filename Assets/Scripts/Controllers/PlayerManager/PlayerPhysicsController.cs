@@ -9,7 +9,7 @@ namespace Controllers
 
         #region Serialized Variables
 
-        
+        [SerializeField] private PlayerMovementController playerMovementController;
 
         #endregion
 
@@ -19,7 +19,12 @@ namespace Controllers
         {
             if (other.CompareTag("Jump"))
             {
-                
+                playerMovementController.PlayerJumpStation();
+            }
+
+            if (other.CompareTag("SawMap"))
+            {
+                playerMovementController.HeightZero();
             }
         }
     }

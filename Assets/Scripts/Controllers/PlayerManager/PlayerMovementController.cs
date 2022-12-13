@@ -36,27 +36,31 @@ namespace Controllers
         private Vector3 _spawnPosition;
         private InputParams _inputParams;
         private GameObject _player;
-        private float _colorAreaSpeed;
+        private float _areaSpeed;
         private Movement _movement;
         private ClampMovement _clampMovement;
         private PlayerReset _playerReset;
         private CharacterToCharacter _characterToCharacter;
         private CharacterMove _characterMove;
+        private PlayerJump _playerJump;
+        private PlayerMovementController _playerMovementController;
         private int _right, _left;
         private bool _rightCharacterTrigger, _leftCharacterTrigger;
+        private float _height;
 
         #endregion
         #endregion
         private void Awake()
         {
-            _colorAreaSpeed = 1f;
+            _areaSpeed = 1f;
             _playerMovementData = GetPlayerData().MovementData;
             _characterData = GetCharacterData();
             _player = transform.gameObject;
-
+            _playerMovementController = transform.GetComponent<PlayerMovementController>();
+            
             #region Command Variables
 
-            _movement = new Movement(ref rigidbody, ref _playerMovementData, ref _colorAreaSpeed);
+            _movement = new Movement(ref rigidbody, ref _playerMovementData, ref _areaSpeed);
             _clampMovement = new ClampMovement(ref rigidbody);
             _playerReset = new PlayerReset(ref characterList, ref _player, ref _isReadyToMove, ref _isReadyToPlay );
             _characterToCharacter = new CharacterToCharacter(ref characterList);
@@ -68,6 +72,9 @@ namespace Controllers
         {
             _spawnPosition = transform.position;
         }
+        public void HeightZero(){_height = 0;
+            transform.GetComponent<Rigidbody>().useGravity = false;
+        }
         private PlayerData GetPlayerData() { return Resources.Load<CD_Player>("Data/CD_Player").Data; }
         private CharacterData GetCharacterData() { return Resources.Load<CD_Character>("Data/CD_Character").CharacterData; }
         public void inputController(InputParams inputParams)
@@ -77,14 +84,11 @@ namespace Controllers
                 _inputParams = inputParams;
             }
         }
-        public void JumpStation()
-        {
-            
-        }
         public void Gameover()
         {
             if (Mathf.Round(characterList[0].transform.GetChild(0).localPosition.z) > Mathf.Round(characterList[1].transform.GetChild(0).localPosition.z) + 5 || 
-                Mathf.Round(characterList[1].transform.GetChild(0).localPosition.z) > Mathf.Round(characterList[0].transform.GetChild(0).localPosition.z) + 5)
+                Mathf.Round(characterList[1].transform.GetChild(0).localPosition.z) > Mathf.Round(characterList[0].transform.GetChild(0).localPosition.z) + 5 ||
+                Mathf.Round(characterList[0].transform.GetChild(0).localPosition.z) < 0 || Mathf.Round(characterList[1].transform.GetChild(0).localPosition.z) < 0)
             {
                 Fail();
             }
@@ -100,16 +104,31 @@ namespace Controllers
         {
             _characterMove.Execute(_inputParams, _rightCharacterTrigger, _leftCharacterTrigger);
         }
+
+        private void PlayerJump()
+        {
+            _leftCharacterTrigger = false; _rightCharacterTrigger = false;
+            PlayerSignals.Instance.onChildZeroPosition?.Invoke();
+            PlayerSignals.Instance.onCharachterAnimation("Jump");
+            transform.DOMoveY(.8f, .5f);
+            DOVirtual.DelayedCall(.8f,()=>_height = 5);
+            DOVirtual.DelayedCall(1f, ()=>EnablePlay());
+            DOVirtual.DelayedCall(1.5f, () => _height = -5)
+                .OnComplete(() => transform.GetComponent<Rigidbody>().useGravity = true);
+        }
+
+        public void PlayerJumpStation()
+        {
+            if (_leftCharacterTrigger && _rightCharacterTrigger)
+            {
+                DeactivePlay();
+                DOVirtual.DelayedCall(1, ()=> PlayerJump());
+            }
+        }
         private void FixedUpdate()
         {
-            if (_isReadyToPlay)
-            {
-                _movement.Execute(_inputParams);
-            }
-            else
-            {
-                Stop();
-            }
+            if (_isReadyToPlay) { _movement.Execute(_inputParams, _height); }
+            else { Stop(); }
         }
         private void Update()
         {
@@ -119,13 +138,14 @@ namespace Controllers
 
         #region SubscribedMethods
 
-        public void EnableMovement()
+        public void EnableMovement() { _isReadyToMove = true; }
+        public void DeactiveMovement() { _isReadyToMove = false; }
+        public void EnablePlay() { _isReadyToPlay = true; }
+        public void DeactivePlay() { _isReadyToPlay = false; }
+        public void CharacterJumpStation(GameObject chracter)
         {
-            _isReadyToMove = true;
-        }
-        public void DeactiveMovement()
-        {
-            _isReadyToMove = false;
+            if (chracter == characterList[0]) { _rightCharacterTrigger = true;}
+            if (chracter == characterList[1]) { _leftCharacterTrigger = true;}
         }
         public void Stop()
         {

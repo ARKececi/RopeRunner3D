@@ -23,11 +23,11 @@ namespace Command.Player
             _colorAreaSpeed = colorAreaSpeed;
         } 
         
-        public void Execute(InputParams inputParams)
+        public void Execute(InputParams inputParams, float height)
         {
             _rigidbody.velocity = new Vector3(
                 inputParams.Values.x * _playerMovementData.SidewaysSpeed,
-                _rigidbody.velocity.y,
+                height,
                 _playerMovementData.ForwardSpeed * _colorAreaSpeed);
         }
     }
