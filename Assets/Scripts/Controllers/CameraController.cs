@@ -40,7 +40,7 @@ namespace Controllers
                 case CameraState.Runner:
                     animator.SetTrigger(_cameraState.ToString());
                     break;
-                case CameraState.StandBy:
+                case CameraState.Jumping:
                     animator.SetTrigger(_cameraState.ToString());
                     break;
             }

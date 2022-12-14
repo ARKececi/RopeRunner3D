@@ -25,6 +25,7 @@ namespace Controllers
         
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private List<GameObject> characterList;
+        [SerializeField] private GameObject rope;
 
         #endregion
         #region Private Variables
@@ -43,7 +44,6 @@ namespace Controllers
         private CharacterToCharacter _characterToCharacter;
         private CharacterMove _characterMove;
         private PlayerJump _playerJump;
-        private PlayerMovementController _playerMovementController;
         private int _right, _left;
         private bool _rightCharacterTrigger, _leftCharacterTrigger;
         private float _height;
@@ -56,8 +56,7 @@ namespace Controllers
             _playerMovementData = GetPlayerData().MovementData;
             _characterData = GetCharacterData();
             _player = transform.gameObject;
-            _playerMovementController = transform.GetComponent<PlayerMovementController>();
-            
+
             #region Command Variables
 
             _movement = new Movement(ref rigidbody, ref _playerMovementData, ref _areaSpeed);
@@ -110,10 +109,11 @@ namespace Controllers
             _leftCharacterTrigger = false; _rightCharacterTrigger = false;
             PlayerSignals.Instance.onChildZeroPosition?.Invoke();
             PlayerSignals.Instance.onCharachterAnimation("Jump");
-            transform.DOMoveY(.8f, .5f);
-            DOVirtual.DelayedCall(.8f,()=>_height = 5);
+            transform.DOMoveY(.6f, .5f);
+            DOVirtual.DelayedCall(.6f,()=>_height = 5);
             DOVirtual.DelayedCall(1f, ()=>EnablePlay());
-            DOVirtual.DelayedCall(1.5f, () => _height = -5)
+            DOVirtual.DelayedCall(1.5f, () => _height = 0);
+            DOVirtual.DelayedCall(2f, () => _height = -5)
                 .OnComplete(() => transform.GetComponent<Rigidbody>().useGravity = true);
         }
 
@@ -121,6 +121,7 @@ namespace Controllers
         {
             if (_leftCharacterTrigger && _rightCharacterTrigger)
             {
+                PlayerSignals.Instance.onPlayCamera?.Invoke(CameraState.Jumping);
                 DeactivePlay();
                 DOVirtual.DelayedCall(1, ()=> PlayerJump());
             }
@@ -161,6 +162,10 @@ namespace Controllers
         {
             Stop();
             _playerReset.Execute(_spawnPosition);
+            for (int i = 0; i <= 14; i++)
+            {
+                rope.transform.GetChild(i).localPosition = new Vector3(i, 0, 0);
+            }
         }
 
         #endregion

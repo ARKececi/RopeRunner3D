@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: CD_Character
   m_EditorClassIdentifier: 
   CharacterData:
-    Lerp: 0.05
+    Lerp: 0.0317
     LinerLerp: 0.15
