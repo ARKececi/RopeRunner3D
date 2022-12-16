@@ -33,6 +33,8 @@ namespace Managers
             CoreGameSignals.Instance.onPlay += playerMovementController.Play;
             CoreGameSignals.Instance.onReset += playerMovementController.Reset;
             CharacterSignals.Instance.onJumpStation += OnJumpStation;
+            CoreGameSignals.Instance.onDeactivePlay += playerMovementController.DeactivePlay;
+            CoreGameSignals.Instance.onEnablePlay += playerMovementController.EnablePlay;
         }
 
         private void UnsubscribeEvents()
@@ -43,6 +45,8 @@ namespace Managers
             CoreGameSignals.Instance.onPlay -= playerMovementController.Play;
             CoreGameSignals.Instance.onReset -= playerMovementController.Reset;
             CharacterSignals.Instance.onJumpStation -= OnJumpStation;
+            CoreGameSignals.Instance.onDeactivePlay -= playerMovementController.DeactivePlay;
+            CoreGameSignals.Instance.onEnablePlay -= playerMovementController.EnablePlay;
         }
 
         private void OnDisable()

@@ -9,6 +9,7 @@ TagManager:
   - Money
   - Jump
   - SawMap
+  - Ring
   layers:
   - Default
   - TransparentFX

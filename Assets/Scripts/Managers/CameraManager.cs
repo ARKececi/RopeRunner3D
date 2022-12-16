@@ -25,12 +25,14 @@ namespace Managers
         {
             PlayerSignals.Instance.onPlayCamera += OnPlayCamera;
             PlayerSignals.Instance.onSetCamera += OnSetCamera;
+            CoreGameSignals.Instance.onReset += OnReset;
         }
 
         private void UnsubscribeEvents()
         {
             PlayerSignals.Instance.onPlayCamera -= OnPlayCamera;
             PlayerSignals.Instance.onSetCamera -= OnSetCamera;
+            CoreGameSignals.Instance.onReset -= OnReset;
         }
 
         private void OnDisable()
@@ -47,6 +49,11 @@ namespace Managers
         private void OnSetCamera(GameObject follow)
         {
             cameraController.SetCamera(follow);
+        }
+
+        private void OnReset()
+        {
+            cameraController.Reset();
         }
     }
 }

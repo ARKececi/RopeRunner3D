@@ -1,3 +1,5 @@
+using Controllers;
+using Signals;
 using UnityEngine;
 
 namespace Managers
@@ -8,12 +10,34 @@ namespace Managers
 
         #region Serialized Variables
 
-        
+        [SerializeField] private RopeController ropeController;
 
         #endregion
 
         #endregion
         
+        #region Event Subscription
+
+        private void OnEnable()
+        {
+            SubscribeEvents();
+        }
+        private void SubscribeEvents()
+        {
+            SawSignals.Instance.onRopeAtack += ropeController.Atack;
+            SawSignals.Instance.onRing += ropeController.Ring;
+        }
+
+        private void UnsubscribeEvents()
+        {
+            SawSignals.Instance.onRopeAtack -= ropeController.Atack;
+            SawSignals.Instance.onRing -= ropeController.Ring;
+        }
+        private void OnDisable()
+        {
+            UnsubscribeEvents();
+        }
         
+        #endregion
     }
 }

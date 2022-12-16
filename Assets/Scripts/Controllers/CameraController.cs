@@ -26,12 +26,10 @@ namespace Controllers
             _player = FindObjectOfType<Managers.PlayerManager>().gameObject;
             SetCamera(_player);
         }
-        
         public void SetCamera(GameObject follow)
         {
             vmStateCamera.Follow = follow.transform;
         }
-        
         public void PlayCamera(CameraState cameraState)
         {
             _cameraState = cameraState;
@@ -44,6 +42,12 @@ namespace Controllers
                     animator.SetTrigger(_cameraState.ToString());
                     break;
             }
+        }
+        public void Reset()
+        {
+            PlayCamera(CameraState.Runner);
+            _player = FindObjectOfType<Managers.PlayerManager>().gameObject;
+            SetCamera(_player);
         }
     }
 }

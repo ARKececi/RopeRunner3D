@@ -1,5 +1,6 @@
 using System;
 using Controllers;
+using DG.Tweening;
 using Enums;
 using Signals;
 using UnityEngine;
@@ -28,11 +29,13 @@ namespace Managers
         private void SubscribeEvents()
         {
             PlayerSignals.Instance.onReset += OnReset;
+            RopeSignals.Instance.onNext += OnNext;
         }
 
         private void UnsubscribeEvents()
         {
             PlayerSignals.Instance.onReset -= OnReset;
+            RopeSignals.Instance.onNext -= OnNext;
         }
 
         private void OnDisable()
@@ -51,6 +54,11 @@ namespace Managers
         {
             uıPanelController.OnOpenPanel(UIPanel.Reset);
         }
+
+        private void OnNext()
+        {
+            uıPanelController.OnOpenPanel(UIPanel.Next);
+        }
         
         public void Play()
         {
@@ -63,6 +71,15 @@ namespace Managers
             CoreGameSignals.Instance.onReset?.Invoke();
             uıPanelController.OnClosePanel(UIPanel.Reset);
             OnPlay();
+        }
+
+        public void Next()
+        {
+            uıPanelController.OnClosePanel(UIPanel.Next);
+            CoreGameSignals.Instance.onClearlevel?.Invoke();
+            CoreGameSignals.Instance.onLevelLoader?.Invoke();
+            CoreGameSignals.Instance.onReset?.Invoke();
+            uıPanelController.OnOpenPanel(UIPanel.Play);
         }
     }
 }

@@ -33,11 +33,12 @@ namespace Controllers
         [ShowInInspector] [Header("Data")] private PlayerMovementData _playerMovementData;
         [Header("CharacterData")] private CharacterData _characterData;
         private bool _isReadyToMove, _isReadyToPlay;
+        private bool _rightCharacterTrigger, _leftCharacterTrigger;
+        private bool _fail;
         private Vector3 _inputValue;
         private Vector3 _spawnPosition;
         private InputParams _inputParams;
         private GameObject _player;
-        private float _areaSpeed;
         private Movement _movement;
         private ClampMovement _clampMovement;
         private PlayerReset _playerReset;
@@ -45,8 +46,8 @@ namespace Controllers
         private CharacterMove _characterMove;
         private PlayerJump _playerJump;
         private int _right, _left;
-        private bool _rightCharacterTrigger, _leftCharacterTrigger;
         private float _height;
+        private float _areaSpeed;
 
         #endregion
         #endregion
@@ -56,6 +57,7 @@ namespace Controllers
             _playerMovementData = GetPlayerData().MovementData;
             _characterData = GetCharacterData();
             _player = transform.gameObject;
+            _spawnPosition = new Vector3(0, 0, -150);
 
             #region Command Variables
 
@@ -66,10 +68,6 @@ namespace Controllers
             _characterMove = new CharacterMove(ref characterList, ref _player, ref _characterData);
 
             #endregion
-        }
-        private void Start()
-        {
-            _spawnPosition = transform.position;
         }
         public void HeightZero(){_height = 0;
             transform.GetComponent<Rigidbody>().useGravity = false;
@@ -96,6 +94,7 @@ namespace Controllers
         {
             _isReadyToPlay = false;
             _isReadyToMove = false;
+            _fail = true;
             PlayerSignals.Instance.onCharachterAnimation?.Invoke("StandBy");
             PlayerSignals.Instance.onReset?.Invoke();
         }
@@ -103,7 +102,6 @@ namespace Controllers
         {
             _characterMove.Execute(_inputParams, _rightCharacterTrigger, _leftCharacterTrigger);
         }
-
         private void PlayerJump()
         {
             _leftCharacterTrigger = false; _rightCharacterTrigger = false;
@@ -116,7 +114,6 @@ namespace Controllers
             DOVirtual.DelayedCall(2f, () => _height = -5)
                 .OnComplete(() => transform.GetComponent<Rigidbody>().useGravity = true);
         }
-
         public void PlayerJumpStation()
         {
             if (_leftCharacterTrigger && _rightCharacterTrigger)
@@ -160,12 +157,16 @@ namespace Controllers
         }
         public void Reset()
         {
+            if (_fail)
+            {
+                _playerReset.Execute(_spawnPosition); 
+            }
             Stop();
-            _playerReset.Execute(_spawnPosition);
             for (int i = 0; i <= 14; i++)
             {
                 rope.transform.GetChild(i).localPosition = new Vector3(i, 0, 0);
             }
+            _fail = false;
         }
 
         #endregion
