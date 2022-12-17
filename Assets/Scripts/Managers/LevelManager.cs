@@ -37,12 +37,14 @@ namespace Managers
         {
             CoreGameSignals.Instance.onLevelLoader += OnWin;
             CoreGameSignals.Instance.onClearlevel += _clearlevel.Execute;
+            RopeSignals.Instance.onLevelCount += OnLevelCount;
         }
 
         private void UnsubscribeEvents()
         {
             CoreGameSignals.Instance.onLevelLoader -= NextLevelID;
             CoreGameSignals.Instance.onClearlevel -= _clearlevel.Execute;
+            RopeSignals.Instance.onLevelCount -= OnLevelCount;
         }
         private void OnDisable()
         {
@@ -62,6 +64,11 @@ namespace Managers
         private int GetActiveLevel()
         {
             return _levelID % Resources.Load<CD_Level>("Data/CD_Level").Levels.Count;
+        }
+
+        private int OnLevelCount()
+        {
+            return _levelCount;
         }
         private void NextLevelID()
         {

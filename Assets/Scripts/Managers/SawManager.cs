@@ -25,11 +25,13 @@ namespace Managers
         private void SubscribeEvents()
         {
             RopeSignals.Instance.onCaught += sawController.Caught;
+            CoreGameSignals.Instance.onReset += sawController.Reset;
         }
 
         private void UnsubscribeEvents()
         {
             RopeSignals.Instance.onCaught -= sawController.Caught;
+            CoreGameSignals.Instance.onReset -= sawController.Reset;
         }
         private void OnDisable()
         {

@@ -23,6 +23,7 @@ namespace Controllers
         private GameObject _ring;
         private int _bell;
         private RopeData _ropeData;
+        private int _level;
         private Vector3 _position;
 
         #endregion
@@ -31,15 +32,18 @@ namespace Controllers
         private void Awake()
         {
             _ropeData = GetRopeData();
-            _bell = _ropeData._bell;
+            _level = (int)RopeSignals.Instance.onLevelCount?.Invoke();
         }
 
         private void Start()
         {
+            _level++;
+            _bell = _ropeData._bell * _level;
         }
 
         private void Update()
         {
+
         }
 
         private RopeData GetRopeData() { return Resources.Load<CD_Rope>("Data/CD_Rope").Data; }
@@ -60,7 +64,7 @@ namespace Controllers
             else
             {
                 Cut();
-                RopeSignals.Instance.onCaught?.Invoke();
+                RopeSignals.Instance.onCaught?.Invoke(true);
                 RopeSignals.Instance.onNext?.Invoke();
             }
         }

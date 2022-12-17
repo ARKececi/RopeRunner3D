@@ -5,6 +5,7 @@ using Data.UnityObject;
 using Data.ValueObject;
 using DG.Tweening;
 using Signals;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace Controllers
@@ -15,16 +16,17 @@ namespace Controllers
         #region Serialized Variables
 
         [SerializeField] private List<GameObject> saw;
+        [SerializeField] private GameObject particles;
 
         #endregion
         #region Private Variables
 
         private int _bell;
-        private bool _caught;
-        private bool _break;
+        [ShowInInspector]private bool _caught;
+        [ShowInInspector]private bool _break;
         private int _atack;
         private int _saw;
-        private bool _trigger;
+        [ShowInInspector]private bool _trigger;
         private GameObject _ring;
         private ParticleSystem _particleSystem;
         private SawData _data;
@@ -46,9 +48,26 @@ namespace Controllers
             _ring = ring;
         }
 
-        public void Caught()
+        public void Caught(bool status)
         {
-            _caught = true;
+            _caught = status;
+        }
+        public void Reset()
+        {
+            _caught = false;
+            _trigger = false;
+            _bell = _data._bell;
+            _atack = _data._atack;
+            _saw = 0;
+            for (int i = 0; i < saw.Count; i++)
+            {
+                if (particles.transform.childCount != 0)
+                {
+                    _particleSystem = particles.transform.GetChild(0).GetComponent<ParticleSystem>();
+                    _particleSystem.gameObject.transform.SetParent(saw[i].transform);
+                    saw[i].SetActive(true);
+                }
+            }
         }
         public void Saw(GameObject other)
         {
@@ -68,10 +87,10 @@ namespace Controllers
         {
             while (_bell != 0)
             {
+                SawSignals.Instance.onRopeAtack?.Invoke(_atack);
                 if (!_caught)
                 {
                     _bell -= _atack;
-                    SawSignals.Instance.onRopeAtack?.Invoke(_atack);
                     yield return new WaitForSeconds(_data._timer);
                 }
                 else
@@ -82,7 +101,7 @@ namespace Controllers
             }
             if (_bell == 0)
             {
-                _particleSystem.gameObject.transform.SetParent(saw[_saw - 1].transform.parent);
+                _particleSystem.gameObject.transform.SetParent(particles.transform);
                 _particleSystem.Stop();
                 saw[_saw - 1].SetActive(false);
                 _trigger = false;
